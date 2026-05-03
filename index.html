@@ -6,26 +6,41 @@
   <title>Local Impact Automation Buildout — Status</title>
   <style>
     :root {
-      --paper: #f7f3ea;
-      --paper-soft: #fbf8f1;
-      --ink: #2a2826;
-      --ink-soft: #4f4b44;
-      --ink-muted: #6e6a62;
-      --rule: #d8d1c0;
-      --rule-soft: #e8e2d2;
-      --accent: #6b5d3f;
-      --accent-soft: #d3c79e;
+      /* Impact System brand palette
+         Primary deep purple #47034E — logo background, primary brand surface
+         Variant         #5D0565 — hover / depth
+         Secondary       #7E3285 — mid purple
+         Light accent    #9F5EA5 — logo underline color
+         Pale accent     #E0B6E4 — soft tint / status badge backgrounds
+         Yellow-orange   #F5A623 — occasional accent
+         Red             #B60000 — urgency / blocked / error
+         Neutral text    #54595F / #7A7A7A — body and muted text
+         Surface         #FFFFFF / #F4F4F4 — page background, card surfaces */
 
-      --status-planned-bg: #ece6d4;
-      --status-planned-fg: #6b5d3f;
-      --status-progress-bg: #e0d8c0;
-      --status-progress-fg: #4a3f24;
+      --paper: #ffffff;
+      --paper-soft: #f4f4f4;
+      --ink: #1a1a1a;
+      --ink-soft: #54595F;
+      --ink-muted: #7A7A7A;
+      --rule: #e3e3e3;
+      --rule-soft: #ededed;
+      --accent: #47034E;
+      --accent-hover: #5D0565;
+      --accent-mid: #7E3285;
+      --accent-soft: #9F5EA5;
+      --accent-pale: #E0B6E4;
+      --alert: #B60000;
+
+      --status-planned-bg: #f4f4f4;
+      --status-planned-fg: #54595F;
+      --status-progress-bg: #E0B6E4;
+      --status-progress-fg: #47034E;
       --status-shipped-bg: #d3dccd;
       --status-shipped-fg: #2f4424;
-      --status-deferred-bg: #e8e2d2;
-      --status-deferred-fg: #6f6856;
-      --status-blocked-bg: #e8d3c8;
-      --status-blocked-fg: #683e2a;
+      --status-deferred-bg: #f4f4f4;
+      --status-deferred-fg: #7A7A7A;
+      --status-blocked-bg: #f4d8d8;
+      --status-blocked-fg: #B60000;
     }
 
     * { box-sizing: border-box; }
@@ -70,7 +85,7 @@
     p { margin: 0 0 0.9em; }
 
     a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
-    a:hover { color: var(--ink); }
+    a:hover { color: var(--accent-hover); }
 
     .meta {
       color: var(--ink-soft);
@@ -103,7 +118,7 @@
 
     .summary {
       background: var(--paper-soft);
-      border-left: 3px solid var(--accent-soft);
+      border-left: 3px solid var(--accent);
       padding: 14px 20px;
       margin: 1.5em 0 0;
       font-size: 0.97rem;
@@ -145,8 +160,9 @@
       margin: 0 0 18px;
     }
     .build-card.build-deferred {
-      background: rgba(232, 226, 210, 0.4);
+      background: rgba(244, 244, 244, 0.6);
       border-style: dashed;
+      border-color: #d4d4d4;
     }
 
     .build-head {
@@ -179,11 +195,11 @@
       white-space: nowrap;
       border: 1px solid transparent;
     }
-    .badge-planned    { background: var(--status-planned-bg);  color: var(--status-planned-fg);  border-color: #d3c79e; }
-    .badge-in-progress{ background: var(--status-progress-bg); color: var(--status-progress-fg); border-color: #b9ad7d; }
+    .badge-planned    { background: var(--status-planned-bg);  color: var(--status-planned-fg);  border-color: #e3e3e3; }
+    .badge-in-progress{ background: var(--status-progress-bg); color: var(--status-progress-fg); border-color: #9F5EA5; }
     .badge-shipped    { background: var(--status-shipped-bg);  color: var(--status-shipped-fg);  border-color: #9caa8a; }
-    .badge-deferred   { background: var(--status-deferred-bg); color: var(--status-deferred-fg); border-color: #c5beaa; }
-    .badge-blocked    { background: var(--status-blocked-bg);  color: var(--status-blocked-fg);  border-color: #c69680; }
+    .badge-deferred   { background: var(--status-deferred-bg); color: var(--status-deferred-fg); border-color: #d4d4d4; }
+    .badge-blocked    { background: var(--status-blocked-bg);  color: var(--status-blocked-fg);  border-color: #B60000; }
 
     .build-meta {
       display: grid;
@@ -252,7 +268,7 @@
     .scope-note {
       margin: 14px 0 0;
       padding: 10px 14px;
-      background: rgba(107, 93, 63, 0.06);
+      background: rgba(71, 3, 78, 0.04);
       border-left: 3px solid var(--accent-soft);
       font-size: 0.88rem;
       color: var(--ink-muted);
@@ -291,7 +307,7 @@
     tr.milestone-past td { color: var(--ink-muted); }
     tr.milestone-past .m-day { color: var(--ink-muted); }
     tr.milestone-past .m-note { color: var(--ink-muted); text-decoration: line-through; text-decoration-color: var(--rule); }
-    tr.milestone-today { background: rgba(211, 199, 158, 0.22); }
+    tr.milestone-today { background: rgba(224, 182, 228, 0.30); }
     tr.milestone-today .m-day { color: var(--accent); }
     tr.milestone-today td { font-weight: 500; }
     tr.milestone-today .m-day::after {
@@ -332,10 +348,10 @@
 
     .count-card--alert {
       background: var(--status-blocked-bg);
-      border-color: #c69680;
+      border-color: var(--alert);
     }
-    .count-card--alert .n { color: var(--status-blocked-fg); }
-    .count-card--alert .label { color: var(--status-blocked-fg); }
+    .count-card--alert .n { color: var(--alert); }
+    .count-card--alert .label { color: var(--alert); }
 
     .two-col {
       display: grid;
@@ -373,10 +389,10 @@
     .irreducible {
       margin-top: 18px;
       padding: 20px 24px;
-      border: 1px solid var(--accent-soft);
+      border: 1px solid var(--accent-pale);
       border-left: 3px solid var(--accent);
       border-radius: 4px;
-      background: rgba(211, 199, 158, 0.14);
+      background: rgba(224, 182, 228, 0.18);
     }
     .irreducible h3 {
       font-family: Georgia, serif;
@@ -430,7 +446,7 @@
       margin-top: 8px;
     }
 
-    /* Brand mark — Impact System wordmark + glyph at top of page */
+    /* Brand mark — Impact System wordmark + logo at top of page */
     .brand {
       display: flex;
       align-items: center;
@@ -444,6 +460,7 @@
       width: 56px;
       height: 56px;
       display: block;
+      border-radius: 8px;
     }
     .brand-text {
       display: flex;
@@ -534,12 +551,10 @@
 <body>
   <main class="page" role="main">
     <div class="brand" aria-label="Impact System — Local Impact Program — Internal Automation Project">
-      <svg class="brand-glyph" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-        <circle cx="20" cy="20" r="17" fill="none" stroke="#6b5d3f" stroke-width="1.2" opacity="0.45"/>
-        <circle cx="20" cy="20" r="11" fill="none" stroke="#6b5d3f" stroke-width="1.4" opacity="0.7"/>
-        <circle cx="20" cy="20" r="5"  fill="none" stroke="#6b5d3f" stroke-width="1.6"/>
-        <circle cx="20" cy="20" r="2.2"  fill="#6b5d3f"/>
-      </svg>
+      <img class="brand-glyph"
+           src="https://impactsystem.io/wp-content/uploads/2026/04/Logo-IM.png"
+           alt="Impact System logo"
+           width="56" height="56" />
       <div class="brand-text">
         <span class="brand-wordmark">Impact System</span>
         <span class="brand-tagline">Local Impact Program — Internal Automation Project</span>
