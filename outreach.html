@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Impact Outreach — Campaign Analytics</title>
+  <style>
+    :root {
+      /* Impact System brand palette — matched to /index.html */
+      --paper: #ffffff;
+      --paper-soft: #f4f4f4;
+      --ink: #1a1a1a;
+      --ink-soft: #54595F;
+      --ink-muted: #7A7A7A;
+      --rule: #e3e3e3;
+      --rule-soft: #ededed;
+      --accent: #47034E;
+      --accent-hover: #5D0565;
+      --accent-mid: #7E3285;
+      --accent-soft: #9F5EA5;
+      --accent-pale: #E0B6E4;
+      --alert: #B60000;
+
+      --status-planned-bg: #f4f4f4;
+      --status-planned-fg: #54595F;
+      --status-progress-bg: #E0B6E4;
+      --status-progress-fg: #47034E;
+      --status-shipped-bg: #d3dccd;
+      --status-shipped-fg: #2f4424;
+      --status-deferred-bg: #f4f4f4;
+      --status-deferred-fg: #7A7A7A;
+      --status-blocked-bg: #f4d8d8;
+      --status-blocked-fg: #B60000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 56px 36px 80px;
+    }
+    @media (max-width: 600px) {
+      .page { padding: 36px 20px 60px; }
+    }
+
+    h1, h2, h3 {
+      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 0.4em;
+      letter-spacing: -0.005em;
+    }
+
+    h1 { font-size: 2.15rem; line-height: 1.18; margin-bottom: 0.3em; }
+    h2 { font-size: 1.45rem; margin-top: 2.6em; padding-bottom: 0.45em; border-bottom: 1px solid var(--rule); }
+    h3 { font-size: 1.1rem; margin: 0; }
+    .section-intro {
+      font-size: 0.93rem;
+      color: var(--ink-soft);
+      margin: 8px 0 4px;
+    }
+
+    p { margin: 0 0 0.9em; }
+
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: var(--accent-hover); }
+
+    .meta {
+      color: var(--ink-soft);
+      font-size: 0.95rem;
+      margin: 0.8em 0 1.4em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+    }
+    .meta-item { white-space: nowrap; }
+    .meta-item strong { color: var(--ink); font-weight: 600; }
+
+    .last-updated {
+      display: inline-block;
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.6em;
+    }
+    .last-updated::before {
+      content: "•";
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    .summary {
+      background: var(--paper-soft);
+      border-left: 3px solid var(--accent);
+      padding: 14px 20px;
+      margin: 1.5em 0 0;
+      font-size: 0.97rem;
+      color: var(--ink-soft);
+    }
+
+    /* Subnav linking the two surfaces — keeps them feeling like one product */
+    .subnav {
+      display: flex;
+      gap: 18px;
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .subnav a {
+      color: var(--ink-muted);
+      text-decoration: none;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+    }
+    .subnav a:hover { color: var(--accent); }
+    .subnav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Count cards — same vocabulary as /index.html */
+    .grid-counts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 1.4em 0 1em;
+    }
+
+    .count-card {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      padding: 14px 16px;
+      border-radius: 4px;
+    }
+    .count-card .n {
+      font-family: Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .count-card .label {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .count-card .sub {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      margin-top: 4px;
+    }
+    .count-card--accent {
+      background: rgba(224, 182, 228, 0.30);
+      border-color: var(--accent-soft);
+    }
+    .count-card--accent .n { color: var(--accent); }
+    .count-card--null .n { color: var(--ink-muted); }
+
+    /* Funnel — visualizes the lifetime drop-off */
+    .funnel {
+      margin: 14px 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .funnel-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 70px;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.92rem;
+    }
+    .funnel-label {
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .funnel-bar-wrap {
+      background: var(--rule-soft);
+      height: 22px;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    .funnel-bar {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    .funnel-bar.bar-mid { background: var(--accent-mid); }
+    .funnel-bar.bar-soft { background: var(--accent-soft); }
+    .funnel-bar.bar-pale { background: var(--accent-pale); }
+    .funnel-bar.bar-alert { background: var(--alert); opacity: 0.65; }
+    .funnel-bar.bar-muted { background: var(--ink-muted); opacity: 0.5; }
+    .funnel-count {
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      text-align: right;
+      font-weight: 500;
+    }
+    @media (max-width: 540px) {
+      .funnel-row { grid-template-columns: 100px 1fr 56px; gap: 8px; }
+      .funnel-label { font-size: 0.72rem; }
+    }
+
+    /* Tables — match snapshot table style from /index.html */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table.snapshot {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.93rem;
+      min-width: 480px;
+    }
+    table.snapshot th, table.snapshot td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    table.snapshot th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      font-weight: 600;
+      border-bottom: 1px solid var(--rule);
+    }
+    table.snapshot td:first-child {
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    table.snapshot td.num,
+    table.snapshot th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    table.snapshot td.muted { color: var(--ink-muted); }
+
+    .panel {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 20px 24px;
+    }
+    .panel h3 {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule-soft);
+      color: var(--ink);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 14px;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Avery's audit observations — framed, not styled as actions */
+    .audit-notes {
+      margin-top: 18px;
+      padding: 20px 24px;
+      border: 1px solid var(--accent-pale);
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      background: rgba(224, 182, 228, 0.18);
+    }
+    .audit-notes h3 {
+      font-family: Georgia, serif;
+      font-size: 1.05rem;
+      margin: 0 0 4px;
+      color: var(--ink);
+    }
+    .audit-notes .audit-byline {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      margin: 0 0 14px;
+      font-style: italic;
+    }
+    .audit-notes ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 0.93rem;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .audit-notes li { margin-bottom: 12px; }
+    .audit-notes li:last-child { margin-bottom: 0; }
+
+    /* Cost panel — paired tiles for Hunter and Places */
+    .cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+    @media (max-width: 640px) { .cost-grid { grid-template-columns: 1fr; } }
+    .cost-tile {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 18px 22px;
+    }
+    .cost-tile h4 {
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      margin: 0 0 12px;
+      color: var(--ink);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 0.92rem;
+      padding: 4px 0;
+    }
+    .cost-row .k {
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+    .cost-row .v {
+      color: var(--ink);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+    .cost-row .v.null { color: var(--ink-muted); font-weight: 400; }
+
+    .est-marker {
+      display: inline-block;
+      font-size: 0.7rem;
+      color: var(--accent);
+      margin-left: 4px;
+      vertical-align: super;
+    }
+    .footnote {
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .rate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 1em 0;
+    }
+
+    /* Brand mark — verbatim from /index.html */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 36px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .brand-glyph {
+      flex: 0 0 auto;
+      width: 56px;
+      height: 56px;
+      display: block;
+      border-radius: 8px;
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .brand-wordmark {
+      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .brand-tagline {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+    @media (max-width: 500px) {
+      .brand { gap: 14px; }
+      .brand-glyph { width: 44px; height: 44px; }
+      .brand-wordmark { font-size: 1.2rem; }
+      .brand-tagline { font-size: 0.78rem; }
+    }
+
+    .stale-banner {
+      margin: 14px 0 0;
+      padding: 10px 14px;
+      background: rgba(182, 0, 0, 0.06);
+      border-left: 3px solid var(--alert);
+      font-size: 0.88rem;
+      color: var(--alert);
+      display: none;
+    }
+    .stale-banner.is-stale { display: block; }
+
+    .load-error {
+      margin: 18px 0;
+      padding: 14px 18px;
+      background: var(--status-blocked-bg);
+      border-left: 3px solid var(--alert);
+      color: var(--status-blocked-fg);
+      font-size: 0.93rem;
+      display: none;
+    }
+    .load-error.is-error { display: block; }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 22px;
+      border-top: 1px solid var(--rule);
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    footer p { margin: 0 0 6px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer a { color: var(--accent); }
+    footer .foot-meta {
+      color: var(--ink-muted);
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page" role="main">
+    <div class="brand" aria-label="Impact System — Local Impact Program — Outreach Campaign">
+      <img class="brand-glyph"
+           src="https://impactsystem.io/wp-content/uploads/2026/04/Logo-IM.png"
+           alt="Impact System logo"
+           width="56" height="56" />
+      <div class="brand-text">
+        <span class="brand-wordmark">Impact System</span>
+        <span class="brand-tagline">Local Impact Program — Outreach Campaign Analytics</span>
+      </div>
+    </div>
+
+    <nav class="subnav" aria-label="Surface navigation">
+      <a href="index.html">Buildout Status</a>
+      <a href="outreach.html" class="active" aria-current="page">Outreach Analytics</a>
+    </nav>
+
+    <header>
+      <span class="last-updated" id="last-updated">Loading…</span>
+      <h1>Local Impact Outreach — Campaign Analytics</h1>
+      <div class="meta">
+        <span class="meta-item"><strong>Campaign window</strong> <span id="window-range">—</span></span>
+        <span class="meta-item"><strong>Owner</strong> BG</span>
+      </div>
+      <div class="summary">
+        Aggregate counts and rate-level metrics for the Local Impact cold-outreach pipeline. Sourced from a daily audit feed; aggregate-only by design — no prospect names, business names, or row-level data appear here. The page reads from a static JSON snapshot regenerated by Avery and redeployed via push.
+      </div>
+      <div class="stale-banner" id="stale-banner" role="status">
+        Data snapshot is more than 36 hours old. Run <code>dashboard_audit.py</code> to refresh.
+      </div>
+      <div class="load-error" id="load-error" role="alert">
+        Could not load <code>data/outreach-audit.json</code>. The snapshot may be missing or unreadable.
+      </div>
+    </header>
+
+    <section aria-labelledby="funnel-h">
+      <h2 id="funnel-h">Lifetime status funnel</h2>
+      <p class="section-intro">Every row tagged in the tracker, by current status. Lifetime totals; counts to the right, drop-off visible in the bar widths.</p>
+      <div class="funnel" id="funnel-lifetime"></div>
+    </section>
+
+    <section aria-labelledby="mtd-h">
+      <h2 id="mtd-h">Month-to-date additions</h2>
+      <p class="section-intro">Status transitions newly recorded since the start of the month. Captures volume produced this cycle, not the running totals above.</p>
+      <div class="grid-counts" id="mtd-counts"></div>
+    </section>
+
+    <section aria-labelledby="throughput-h">
+      <h2 id="throughput-h">Throughput</h2>
+      <p class="section-intro">Send velocity across rolling windows. Email-stage totals show how much of the cadence each lead sees on average.</p>
+      <div class="grid-counts" id="throughput-counts"></div>
+      <h3 style="margin-top:1.6em; font-size:1rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;">Outcome rates (lifetime)</h3>
+      <div class="rate-grid" id="rate-counts"></div>
+    </section>
+
+    <section aria-labelledby="cost-h">
+      <h2 id="cost-h">Cost lines</h2>
+      <p class="section-intro">API spend that fed the campaign. Hunter dollar cost is not currently tracked; Places spend is a blended estimate.</p>
+      <div class="cost-grid">
+        <div class="cost-tile" id="cost-hunter">
+          <h4>Hunter.io</h4>
+          <div class="cost-rows"></div>
+        </div>
+        <div class="cost-tile" id="cost-places">
+          <h4>Google Places API</h4>
+          <div class="cost-rows"></div>
+        </div>
+      </div>
+      <div class="grid-counts" style="margin-top:18px;" id="cost-per-counts"></div>
+      <p class="footnote" id="cost-footnote"></p>
+    </section>
+
+    <section aria-labelledby="trade-h">
+      <h2 id="trade-h">Trade yield</h2>
+      <p class="section-intro">Reply rate by trade vertical. Minimum sample size per row reflected in the audit feed.</p>
+      <div class="two-col">
+        <div class="panel">
+          <h3>Top 5 by reply rate</h3>
+          <div class="table-wrap">
+            <table class="snapshot" id="top-trades">
+              <thead>
+                <tr><th>Trade</th><th class="num">Sent</th><th class="num">Replied</th><th class="num">Reply %</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Bottom 5 by reply rate</h3>
+          <div class="table-wrap">
+            <table class="snapshot" id="bottom-trades">
+              <thead>
+                <tr><th>Trade</th><th class="num">Sent</th><th class="num">Replied</th><th class="num">Reply %</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:18px;">
+        <h3>Top 5 by booked rate</h3>
+        <div id="booked-trades-empty" class="footnote" style="margin:0;">
+          No bookings have landed yet. Booked rate ranking is unavailable until at least one trade records a booked call.
+        </div>
+        <div class="table-wrap" id="booked-trades-wrap" style="display:none;">
+          <table class="snapshot" id="booked-trades">
+            <thead>
+              <tr><th>Trade</th><th class="num">Sent</th><th class="num">Booked</th><th class="num">Booked %</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="audit-h">
+      <h2 id="audit-h">Audit notes</h2>
+      <p class="section-intro">Observations from the audit pass. These are reads of the data, not actions taken.</p>
+      <div class="audit-notes">
+        <h3>Avery's read</h3>
+        <p class="audit-byline">Observations from the latest audit pass — for context, not a record of decisions.</p>
+        <ul id="recommendations"></ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Questions: <a href="mailto:bg@bghamrick.com">bg@bghamrick.com</a> (BG). Pipeline questions route via Alfred.</p>
+      <p class="foot-meta">Aggregate counts and rate-level metrics only. No prospect-, business-, or row-level data appears on this page.</p>
+      <p class="foot-meta" id="meta-strip">Snapshot generated — · Tracker last modified —</p>
+    </footer>
+  </main>
+
+  <script>
+    // Pure render layer. Reads data/outreach-audit.json, hydrates the page.
+    // No backend; refresh the snapshot by re-running Avery's dashboard_audit.py
+    // and pushing to GitHub Pages.
+
+    (function () {
+      var STATUS_ORDER = [
+        'DISCOVERED',
+        'SENT',
+        'FOLLOW-UP-1',
+        'FOLLOW-UP-2',
+        'LOOM_DRAFTED',
+        'LOOM_SENT',
+        'AUTOREPLY',
+        'REPLIED',
+        'BOOKED',
+        'BOUNCED',
+        'DO NOT SEND'
+      ];
+
+      var STATUS_BAR_CLASS = {
+        'DISCOVERED':   'bar-pale',
+        'SENT':         '',
+        'FOLLOW-UP-1':  'bar-mid',
+        'FOLLOW-UP-2':  'bar-mid',
+        'LOOM_DRAFTED': 'bar-pale',
+        'LOOM_SENT':    'bar-soft',
+        'AUTOREPLY':    'bar-muted',
+        'REPLIED':      '',
+        'BOOKED':       '',
+        'BOUNCED':      'bar-alert',
+        'DO NOT SEND':  'bar-muted'
+      };
+
+      function fmtInt(n) {
+        if (n === null || n === undefined) return '—';
+        return Number(n).toLocaleString('en-US');
+      }
+      function fmtPct(rate, digits) {
+        if (rate === null || rate === undefined) return '—';
+        var d = digits == null ? 2 : digits;
+        return (Number(rate) * 100).toFixed(d) + '%';
+      }
+      function fmtUSD(n) {
+        if (n === null || n === undefined) return '—';
+        return '$' + Number(n).toFixed(2);
+      }
+      function fmtUSDExact(n) {
+        if (n === null || n === undefined) return '—';
+        return '$' + Number(n).toFixed(4);
+      }
+      function fmtDateBG(iso) {
+        // BG date format: Month Day, Year Weekday
+        if (!iso) return '—';
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) return iso;
+        var month = ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()];
+        var weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+        return month + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + weekday;
+      }
+      function fmtDateBGFromYMD(ymd) {
+        if (!ymd) return '—';
+        // Treat as local-noon to dodge TZ shifts
+        var parts = ymd.split('-');
+        if (parts.length !== 3) return ymd;
+        var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        var month = ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()];
+        var weekday = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+        return month + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + weekday;
+      }
+
+      function el(tag, attrs, children) {
+        var node = document.createElement(tag);
+        if (attrs) {
+          for (var k in attrs) {
+            if (k === 'class') node.className = attrs[k];
+            else if (k === 'text') node.textContent = attrs[k];
+            else if (k === 'html') node.innerHTML = attrs[k];
+            else node.setAttribute(k, attrs[k]);
+          }
+        }
+        if (children) {
+          for (var i = 0; i < children.length; i++) {
+            if (children[i]) node.appendChild(children[i]);
+          }
+        }
+        return node;
+      }
+
+      function renderFunnel(data) {
+        var counts = (data.tracker && data.tracker.status_counts_lifetime) || {};
+        var keys = STATUS_ORDER.slice();
+        // Append any unknown statuses at the end so we never silently drop data
+        Object.keys(counts).forEach(function (k) {
+          if (keys.indexOf(k) === -1) keys.push(k);
+        });
+        var present = keys.filter(function (k) { return counts[k] != null; });
+        var max = 0;
+        present.forEach(function (k) { if (counts[k] > max) max = counts[k]; });
+        var container = document.getElementById('funnel-lifetime');
+        container.innerHTML = '';
+        present.forEach(function (k) {
+          var v = counts[k];
+          var pct = max > 0 ? (v / max) * 100 : 0;
+          var barClass = 'funnel-bar ' + (STATUS_BAR_CLASS[k] || '');
+          var row = el('div', { class: 'funnel-row' }, [
+            el('span', { class: 'funnel-label', text: k }),
+            el('div', { class: 'funnel-bar-wrap' }, [
+              el('div', { class: barClass, style: 'width:' + Math.max(pct, 1.5) + '%' })
+            ]),
+            el('span', { class: 'funnel-count', text: fmtInt(v) })
+          ]);
+          container.appendChild(row);
+        });
+      }
+
+      function renderMTD(data) {
+        var counts = (data.tracker && data.tracker.status_counts_mtd_added) || {};
+        var container = document.getElementById('mtd-counts');
+        container.innerHTML = '';
+        var keys = Object.keys(counts);
+        if (keys.length === 0) {
+          container.appendChild(el('div', { class: 'count-card count-card--null' }, [
+            el('div', { class: 'n', text: '—' }),
+            el('div', { class: 'label', text: 'No MTD additions' })
+          ]));
+          return;
+        }
+        // Sort by canonical order, then alpha for unknowns
+        keys.sort(function (a, b) {
+          var ai = STATUS_ORDER.indexOf(a);
+          var bi = STATUS_ORDER.indexOf(b);
+          if (ai === -1 && bi === -1) return a.localeCompare(b);
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        });
+        keys.forEach(function (k) {
+          container.appendChild(el('div', { class: 'count-card' }, [
+            el('div', { class: 'n', text: fmtInt(counts[k]) }),
+            el('div', { class: 'label', text: k })
+          ]));
+        });
+      }
+
+      function renderThroughput(data) {
+        var t = data.throughput || {};
+        var container = document.getElementById('throughput-counts');
+        container.innerHTML = '';
+        var entries = [
+          { v: t.sends_today, l: 'Sends today' },
+          { v: t.sends_this_week, l: 'Sends this week' },
+          { v: t.sends_mtd, l: 'Sends MTD' },
+          { v: t.sends_rolling_30, l: 'Rolling 30d' },
+          { v: t.e1_sent_lifetime, l: 'Email #1 lifetime' },
+          { v: t.e2_sent_lifetime, l: 'Email #2 lifetime' },
+          { v: t.e3_sent_lifetime, l: 'Email #3 lifetime' }
+        ];
+        entries.forEach(function (e) {
+          var card = el('div', { class: 'count-card' }, [
+            el('div', { class: 'n', text: fmtInt(e.v) }),
+            el('div', { class: 'label', text: e.l })
+          ]);
+          container.appendChild(card);
+        });
+
+        var rates = data.rates || {};
+        var outcomes = data.outcomes || {};
+        var rateContainer = document.getElementById('rate-counts');
+        rateContainer.innerHTML = '';
+        var rateEntries = [
+          { v: rates.reply_rate, l: 'Reply rate', sub: fmtInt(outcomes.replied) + ' replied' },
+          { v: rates.bounce_rate, l: 'Bounce rate', sub: fmtInt(outcomes.bounced) + ' bounced', alert: rates.bounce_rate != null && rates.bounce_rate > 0.05 },
+          { v: rates.opt_out_rate, l: 'Opt-out rate', sub: fmtInt(outcomes.opted_out) + ' opted out' },
+          { v: rates.booked_rate, l: 'Booked rate', sub: fmtInt(outcomes.booked) + ' booked' }
+        ];
+        rateEntries.forEach(function (e) {
+          var classes = 'count-card';
+          if (e.v == null) classes += ' count-card--null';
+          var card = el('div', { class: classes }, [
+            el('div', { class: 'n', text: fmtPct(e.v) }),
+            el('div', { class: 'label', text: e.l }),
+            el('div', { class: 'sub', text: e.sub })
+          ]);
+          rateContainer.appendChild(card);
+        });
+      }
+
+      function renderCost(data) {
+        var costs = data.costs || {};
+        var hunter = costs.hunter || {};
+        var places = costs.places || {};
+        var cpl = costs.cost_per_lifetime || {};
+        var cpm = costs.cost_per_mtd || {};
+
+        var hRows = document.querySelector('#cost-hunter .cost-rows');
+        hRows.innerHTML = '';
+        var hunterRows = [
+          ['Plan', hunter.plan_name || '—'],
+          ['Credits remaining', fmtInt(hunter.credits_remaining)],
+          ['Credits used this cycle', fmtInt(hunter.credits_used_this_cycle) + (hunter.credits_available_this_cycle != null ? ' / ' + fmtInt(hunter.credits_available_this_cycle) : '')],
+          ['Credits spent MTD', fmtInt(hunter.credits_spent_mtd)],
+          ['Cycle resets', fmtDateBGFromYMD(hunter.reset_date)],
+          ['Dollars MTD', hunter.dollars_spent_mtd == null ? 'pending' : fmtUSD(hunter.dollars_spent_mtd)]
+        ];
+        hunterRows.forEach(function (pair) {
+          var nullClass = (pair[1] === '—' || pair[1] === 'pending') ? ' null' : '';
+          hRows.appendChild(el('div', { class: 'cost-row' }, [
+            el('span', { class: 'k', text: pair[0] }),
+            el('span', { class: 'v' + nullClass, text: pair[1] })
+          ]));
+        });
+
+        var pRows = document.querySelector('#cost-places .cost-rows');
+        pRows.innerHTML = '';
+        var lifetime = costs.lifetime || {};
+        var placesRows = [
+          ['Calls MTD', fmtInt(places.calls_mtd)],
+          ['Dollars MTD', places.dollars_spent_mtd == null ? '—' : (fmtUSD(places.dollars_spent_mtd) + ' est.'), places.dollars_spent_mtd != null],
+          ['Monthly budget', places.monthly_budget_env == null ? '—' : fmtUSD(places.monthly_budget_env)],
+          ['Calls lifetime', fmtInt(lifetime.places_calls)],
+          ['Spend lifetime', lifetime.places_spend_estimate == null ? '—' : (fmtUSD(lifetime.places_spend_estimate) + ' est.'), lifetime.places_spend_estimate != null]
+        ];
+        placesRows.forEach(function (pair) {
+          var nullClass = (pair[1] === '—' || pair[1] === 'pending') ? ' null' : '';
+          pRows.appendChild(el('div', { class: 'cost-row' }, [
+            el('span', { class: 'k', text: pair[0] }),
+            el('span', { class: 'v' + nullClass, text: pair[1] })
+          ]));
+        });
+
+        var cpContainer = document.getElementById('cost-per-counts');
+        cpContainer.innerHTML = '';
+        var cpEntries = [
+          { v: cpl.send,        l: 'Cost per send (lifetime)',   fmt: fmtUSDExact },
+          { v: cpl.reply,       l: 'Cost per reply (lifetime)',  fmt: fmtUSD },
+          { v: cpl.booked_call, l: 'Cost per booked (lifetime)', fmt: fmtUSD },
+          { v: cpm.send,        l: 'Cost per send (MTD)',        fmt: fmtUSDExact }
+        ];
+        cpEntries.forEach(function (e) {
+          var classes = 'count-card';
+          if (e.v == null) classes += ' count-card--null';
+          var card = el('div', { class: classes }, [
+            el('div', { class: 'n', text: e.v == null ? '—' : e.fmt(e.v) }),
+            el('div', { class: 'label', text: e.l })
+          ]);
+          cpContainer.appendChild(card);
+        });
+
+        var notes = [];
+        if (cpl.note) notes.push('Lifetime: ' + cpl.note);
+        if (cpm.note) notes.push('MTD: ' + cpm.note);
+        if (places.cost_model && places.cost_model.note) notes.push('Places: ' + places.cost_model.note);
+        var meta = data.metadata || {};
+        if (meta.notes && meta.notes.length) {
+          meta.notes.forEach(function (n) {
+            if (n && n.toLowerCase().indexOf('estimate') !== -1) notes.push(n);
+          });
+        }
+        document.getElementById('cost-footnote').textContent = notes.join(' · ');
+      }
+
+      function renderTradeYield(data) {
+        var ty = data.trade_yield || {};
+
+        function fillTable(tbodySel, rows, kind) {
+          var tbody = document.querySelector(tbodySel + ' tbody');
+          tbody.innerHTML = '';
+          if (!rows || rows.length === 0) {
+            var empty = el('tr', null, [
+              el('td', { colspan: '4', class: 'muted', text: 'No data.' })
+            ]);
+            tbody.appendChild(empty);
+            return;
+          }
+          rows.forEach(function (r) {
+            var rateField = kind === 'booked' ? r.booked_rate : r.reply_rate;
+            var countField = kind === 'booked' ? r.booked : r.replied;
+            var row = el('tr', null, [
+              el('td', { text: r.trade }),
+              el('td', { class: 'num', text: fmtInt(r.sent) }),
+              el('td', { class: 'num', text: fmtInt(countField) }),
+              el('td', { class: 'num', text: fmtPct(rateField) })
+            ]);
+            tbody.appendChild(row);
+          });
+        }
+
+        fillTable('#top-trades', ty.top_5_by_reply_rate, 'reply');
+        fillTable('#bottom-trades', ty.bottom_5_by_reply_rate, 'reply');
+
+        var booked = ty.top_5_by_booked_rate || [];
+        if (booked.length === 0) {
+          document.getElementById('booked-trades-empty').style.display = '';
+          document.getElementById('booked-trades-wrap').style.display = 'none';
+        } else {
+          document.getElementById('booked-trades-empty').style.display = 'none';
+          document.getElementById('booked-trades-wrap').style.display = '';
+          fillTable('#booked-trades', booked, 'booked');
+        }
+      }
+
+      function renderRecommendations(data) {
+        var recs = data.recommendations || [];
+        var container = document.getElementById('recommendations');
+        container.innerHTML = '';
+        if (recs.length === 0) {
+          container.appendChild(el('li', { text: 'No observations recorded in the latest audit pass.' }));
+          return;
+        }
+        recs.forEach(function (r) {
+          container.appendChild(el('li', { text: r }));
+        });
+      }
+
+      function renderMetadata(data) {
+        var meta = data.metadata || {};
+        var win = meta.audit_window || {};
+        var headerRange = document.getElementById('window-range');
+        if (win.lifetime_start && win.today) {
+          headerRange.textContent = fmtDateBGFromYMD(win.lifetime_start) + ' through ' + fmtDateBGFromYMD(win.today);
+        }
+        var lu = document.getElementById('last-updated');
+        lu.textContent = 'Snapshot ' + fmtDateBG(meta.generated_at);
+
+        var stripParts = [];
+        if (meta.generated_at) stripParts.push('Snapshot generated ' + fmtDateBG(meta.generated_at));
+        else stripParts.push('Snapshot generated —');
+        if (meta.tracker_last_modified) stripParts.push('Tracker last modified ' + fmtDateBG(meta.tracker_last_modified));
+        else stripParts.push('Tracker last modified —');
+        document.getElementById('meta-strip').textContent = stripParts.join(' · ');
+
+        // Stale check: more than 36h since generation
+        if (meta.generated_at) {
+          var gen = new Date(meta.generated_at);
+          var hoursSince = (Date.now() - gen.getTime()) / 3600000;
+          if (hoursSince > 36) {
+            document.getElementById('stale-banner').classList.add('is-stale');
+          }
+        }
+      }
+
+      function showError() {
+        document.getElementById('load-error').classList.add('is-error');
+        document.getElementById('last-updated').textContent = 'Snapshot unavailable';
+      }
+
+      // Cache-bust the JSON so a fresh push surfaces immediately on GH Pages
+      var url = 'data/outreach-audit.json?t=' + Date.now();
+      fetch(url, { cache: 'no-store' })
+        .then(function (resp) {
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          return resp.json();
+        })
+        .then(function (data) {
+          renderMetadata(data);
+          renderFunnel(data);
+          renderMTD(data);
+          renderThroughput(data);
+          renderCost(data);
+          renderTradeYield(data);
+          renderRecommendations(data);
+        })
+        .catch(function (err) {
+          console.error('Failed to load outreach-audit.json', err);
+          showError();
+        });
+    })();
+  </script>
+</body>
+</html>

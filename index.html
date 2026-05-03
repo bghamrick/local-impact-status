@@ -488,6 +488,27 @@
       .brand-tagline { font-size: 0.78rem; }
     }
 
+    .subnav {
+      display: flex;
+      gap: 18px;
+      margin: 0 0 14px;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .subnav a {
+      color: var(--ink-muted);
+      text-decoration: none;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+    }
+    .subnav a:hover { color: var(--accent); }
+    .subnav a.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
     /* Project history — vertical timeline, muted to read as past */
     .history {
       margin: 18px 0 0;
@@ -560,6 +581,10 @@
         <span class="brand-tagline">Local Impact Program — Internal Automation Project</span>
       </div>
     </div>
+    <nav class="subnav" aria-label="Surface navigation">
+      <a href="index.html" class="active" aria-current="page">Buildout Status</a>
+      <a href="outreach.html">Outreach Analytics</a>
+    </nav>
     <header>
       <span class="last-updated">Last updated May 3, 2026 Sunday</span>
       <h1>Local Impact Automation Buildout</h1>

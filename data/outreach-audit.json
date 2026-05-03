@@ -1,0 +1,223 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-03T22:27:18Z",
+    "tracker_last_modified": "2026-05-03T21:00:09Z",
+    "audit_window": {
+      "lifetime_start": "2026-04-01",
+      "today": "2026-05-03",
+      "mtd_start": "2026-05-01"
+    },
+    "schema_version": "1.0",
+    "public_safe": true,
+    "notes": [
+      "Aggregate counts and rate-level metrics only.",
+      "No prospect names, business names, individual emails, or row-level data.",
+      "Places spend is an estimate using a blended per-call rate.",
+      "Hunter dollar cost is not tracked (plan price not in env)."
+    ]
+  },
+  "tracker": {
+    "total_rows": 2190,
+    "status_counts_lifetime": {
+      "BOUNCED": 162,
+      "SENT": 371,
+      "DISCOVERED": 86,
+      "FOLLOW-UP-2": 1203,
+      "DO NOT SEND": 15,
+      "LOOM_SENT": 8,
+      "REPLIED": 3,
+      "AUTOREPLY": 15,
+      "LOOM_DRAFTED": 2,
+      "FOLLOW-UP-1": 325
+    },
+    "status_counts_mtd_added": {
+      "SENT": 274,
+      "LOOM_SENT": 1,
+      "AUTOREPLY": 4,
+      "BOUNCED": 21
+    }
+  },
+  "throughput": {
+    "sends_today": 100,
+    "sends_this_week": 500,
+    "sends_mtd": 300,
+    "sends_rolling_30": 2098,
+    "e1_sent_lifetime": 2098,
+    "e2_sent_lifetime": 1558,
+    "e3_sent_lifetime": 1212
+  },
+  "rates": {
+    "reply_rate": 0.0086,
+    "bounce_rate": 0.0772,
+    "opt_out_rate": 0.0071,
+    "booked_rate": 0.0
+  },
+  "outcomes": {
+    "replied": 18,
+    "booked": 0,
+    "bounced": 162,
+    "opted_out": 15
+  },
+  "costs": {
+    "hunter": {
+      "credits_remaining": 1467,
+      "credits_used_this_cycle": 533,
+      "credits_available_this_cycle": 2000,
+      "reset_date": "2026-05-07",
+      "plan_name": "Starter",
+      "credits_spent_mtd": 294,
+      "monthly_limit_env": 2000,
+      "dollars_spent_mtd": null
+    },
+    "places": {
+      "calls_mtd": 2097,
+      "dollars_spent_mtd": 51.38,
+      "monthly_budget_env": 200.0,
+      "cost_model": {
+        "blended_per_call_estimate": 0.0245,
+        "text_search_per_call": 0.032,
+        "place_details_per_call": 0.017,
+        "note": "Blended estimate; per-call text/detail split not persisted."
+      }
+    },
+    "lifetime": {
+      "places_calls": 11648,
+      "places_spend_estimate": 285.38,
+      "hunter_credits": 1770
+    },
+    "cost_per_lifetime": {
+      "send": 0.136,
+      "reply": 15.8544,
+      "booked_call": null,
+      "note": "Places spend only; Hunter dollar cost not tracked (plan price not in env)."
+    },
+    "cost_per_mtd": {
+      "send": 0.1713,
+      "reply": null,
+      "booked_call": null,
+      "note": "MTD reply/booked counts require timestamped reply/booked dates not currently tracked per row."
+    }
+  },
+  "trade_yield": {
+    "top_5_by_reply_rate": [
+      {
+        "trade": "pest control",
+        "sent": 24,
+        "replied": 1,
+        "booked": 0,
+        "bounced": 1,
+        "reply_rate": 0.0417,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0417
+      },
+      {
+        "trade": "tree service",
+        "sent": 108,
+        "replied": 3,
+        "booked": 0,
+        "bounced": 8,
+        "reply_rate": 0.0278,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0741
+      },
+      {
+        "trade": "electrician",
+        "sent": 133,
+        "replied": 3,
+        "booked": 0,
+        "bounced": 12,
+        "reply_rate": 0.0226,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0902
+      },
+      {
+        "trade": "lawn care",
+        "sent": 202,
+        "replied": 4,
+        "booked": 0,
+        "bounced": 9,
+        "reply_rate": 0.0198,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0446
+      },
+      {
+        "trade": "window",
+        "sent": 200,
+        "replied": 2,
+        "booked": 0,
+        "bounced": 16,
+        "reply_rate": 0.01,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.08
+      }
+    ],
+    "top_5_by_booked_rate": [],
+    "bottom_5_by_reply_rate": [
+      {
+        "trade": "roofer",
+        "sent": 155,
+        "replied": 0,
+        "booked": 0,
+        "bounced": 11,
+        "reply_rate": 0.0,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.071
+      },
+      {
+        "trade": "plumber",
+        "sent": 32,
+        "replied": 0,
+        "booked": 0,
+        "bounced": 3,
+        "reply_rate": 0.0,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0938
+      },
+      {
+        "trade": "hvac",
+        "sent": 135,
+        "replied": 0,
+        "booked": 0,
+        "bounced": 10,
+        "reply_rate": 0.0,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0741
+      },
+      {
+        "trade": "garage door",
+        "sent": 94,
+        "replied": 0,
+        "booked": 0,
+        "bounced": 11,
+        "reply_rate": 0.0,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.117
+      },
+      {
+        "trade": "handyman",
+        "sent": 83,
+        "replied": 0,
+        "booked": 0,
+        "bounced": 8,
+        "reply_rate": 0.0,
+        "booked_rate": 0.0,
+        "bounce_rate": 0.0964
+      }
+    ],
+    "trades_evaluated": 17,
+    "min_sample_size": 20
+  },
+  "recommendations": [
+    "HEADLINE: Zero booked calls across 2098 sends and ~$285 in Places spend (Hunter not included). The pipeline is producing replies (18 lifetime) but no replies have converted to booked calls. This is the cost-cut decision point: either the ICP is wrong, the email copy isn't earning the click-through to Calendly, or Calendly itself is dropping interest. Pull a sample of the 18 replies and read them in voice \u2014 what's the most common reason they engaged but didn't book?",
+    "Bounce rate of 7.7% is borderline (target: under 5%). Garage door, electrician, plumber, and handyman trades show higher bounce rates (9-12%) \u2014 Hunter is feeding more stale addresses for these verticals. Tighten Hunter confidence threshold for high-bounce trades or drop them until the data is cleaner.",
+    "Reply rate is 0.86% \u2014 well under typical cold-outreach benchmarks (2-5% for B2B services). Two interpretations: (a) Email #1 isn't compelling \u2014 the subject line or first sentence isn't earning the open and the read; (b) the audit/heatmap hook isn't landing for trades where GBP is less central to lead-gen. Either way, the current copy is the primary lever. Rewrite Email #1, A/B subject lines on the next 200 sends, measure delta.",
+    "Email #3 has fired 1212 times. 1203 rows currently sit in FOLLOW-UP-2 status \u2014 that's the universe Email #3 was supposed to convert, and only 18 replies have surfaced across the entire campaign (most likely on E1 or E2). The third touch isn't earning its slot. Two options: kill Email #3 entirely (saves Hunter cost on verifying still-valid sends, reduces sender-reputation drag from low-engagement messages), OR rewrite as a hard-breakup with one concrete ask and a specific deadline. Default recommendation: kill it for the next 2 weeks, measure if reply rate on E1+E2 holds.",
+    "Cut bottom yielders: roofer, plumber, hvac. These three trades absorbed 322 sends with zero replies between them. They're consuming Hunter credits, Places API spend, and sender-reputation capacity that would convert better in higher-yield verticals. Drop them from rotation immediately.",
+    "Concentrate spend on top performers: pest control, tree service, electrician. These are the only trades showing reply rates near or above the 2% benchmark. Increase rotation weight for these verticals; expand city coverage in them before adding any new trade. Pest control's small sample (24 sends) needs more volume to confirm the signal.",
+    "Cost-per-reply is ~$15.85 on Places spend alone. Cost-per-booked is undefined (zero booked). Adding Hunter subscription (Starter plan ~$49/mo) plus operator time, true cost-per-booked is currently infinite. Until a single booked call hits, the program is net cost \u2014 this is the cost-cut signal. Either accept a 4-6 week burn-while-you-fix-copy window, or pause sends and rewrite before spending more."
+  ],
+  "tracker_link": {
+    "drive_url": null,
+    "note": "Drive shareable URL not present in pipeline configs. BG can fill in manually if desired; permission gating already handled by Drive (BG + Skyler view-only)."
+  }
+}
