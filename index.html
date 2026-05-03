@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Impact Automation Buildout — Status</title>
+  <style>
+    :root {
+      --paper: #f7f3ea;
+      --paper-soft: #fbf8f1;
+      --ink: #2a2826;
+      --ink-soft: #5a564f;
+      --rule: #d8d1c0;
+      --rule-soft: #e8e2d2;
+      --accent: #6b5d3f;
+      --accent-soft: #d3c79e;
+
+      --status-planned-bg: #ece6d4;
+      --status-planned-fg: #6b5d3f;
+      --status-progress-bg: #e0d8c0;
+      --status-progress-fg: #4a3f24;
+      --status-shipped-bg: #d3dccd;
+      --status-shipped-fg: #2f4424;
+      --status-deferred-bg: #e8e2d2;
+      --status-deferred-fg: #6f6856;
+      --status-blocked-bg: #e8d3c8;
+      --status-blocked-fg: #683e2a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 56px 32px 80px;
+    }
+
+    h1, h2, h3 {
+      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 0.4em;
+      letter-spacing: -0.005em;
+    }
+
+    h1 { font-size: 2.05rem; line-height: 1.2; }
+    h2 { font-size: 1.4rem; margin-top: 2.4em; padding-bottom: 0.4em; border-bottom: 1px solid var(--rule); }
+    h3 { font-size: 1.1rem; margin: 0; }
+
+    p { margin: 0 0 0.9em; }
+
+    a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: var(--ink); }
+
+    .meta {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      margin: 0.8em 0 1.4em;
+    }
+    .meta span + span::before {
+      content: " · ";
+      color: var(--rule);
+      margin: 0 0.4em;
+    }
+
+    .charter-link {
+      display: inline-block;
+      margin-top: 0.6em;
+      font-size: 0.9rem;
+    }
+
+    .summary {
+      background: var(--paper-soft);
+      border-left: 3px solid var(--accent-soft);
+      padding: 14px 20px;
+      margin: 1.5em 0 0;
+      font-size: 0.97rem;
+      color: var(--ink-soft);
+    }
+
+    .grid-counts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 1.4em 0 1em;
+    }
+
+    .count-card {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      padding: 14px 16px;
+      border-radius: 4px;
+    }
+    .count-card .n {
+      font-family: Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .count-card .label {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+
+    .build-card {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 22px 26px;
+      margin: 0 0 18px;
+    }
+
+    .build-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .build-title { flex: 1; }
+    .build-num {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+    .badge-planned    { background: var(--status-planned-bg);  color: var(--status-planned-fg);  border-color: #d3c79e; }
+    .badge-in-progress{ background: var(--status-progress-bg); color: var(--status-progress-fg); border-color: #b9ad7d; }
+    .badge-shipped    { background: var(--status-shipped-bg);  color: var(--status-shipped-fg);  border-color: #9caa8a; }
+    .badge-deferred   { background: var(--status-deferred-bg); color: var(--status-deferred-fg); border-color: #c5beaa; }
+    .badge-blocked    { background: var(--status-blocked-bg);  color: var(--status-blocked-fg);  border-color: #c69680; }
+
+    .build-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px 24px;
+      margin: 12px 0 14px;
+      padding: 0;
+    }
+    .build-meta div { margin: 0; }
+    .build-meta dt {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+    .build-meta dd { margin: 0; font-size: 0.94rem; }
+
+    .build-why {
+      font-size: 0.95rem;
+      color: var(--ink-soft);
+      margin: 0 0 12px;
+    }
+    .build-why .label { color: var(--ink); font-weight: 500; }
+
+    .build-dod {
+      border-top: 1px solid var(--rule-soft);
+      padding-top: 12px;
+      margin-top: 6px;
+    }
+    .build-dod summary {
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--accent);
+      list-style: none;
+      user-select: none;
+    }
+    .build-dod summary::-webkit-details-marker { display: none; }
+    .build-dod summary::before {
+      content: "▸ ";
+      display: inline-block;
+      transition: transform 0.15s;
+      color: var(--accent-soft);
+    }
+    .build-dod[open] summary::before { content: "▾ "; }
+    .build-dod ul {
+      margin: 10px 0 4px;
+      padding-left: 22px;
+      font-size: 0.92rem;
+      color: var(--ink-soft);
+    }
+    .build-dod li { margin-bottom: 6px; }
+
+    .scope-note {
+      margin: 12px 0 0;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.02);
+      border-left: 2px solid var(--rule);
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+
+    table.milestones {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.93rem;
+    }
+    table.milestones th, table.milestones td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--rule-soft);
+      vertical-align: top;
+    }
+    table.milestones th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      font-weight: 600;
+      border-bottom: 1px solid var(--rule);
+    }
+    .m-day { font-weight: 600; width: 70px; }
+    .m-date { width: 220px; color: var(--ink-soft); }
+    .m-marker { width: 90px; }
+
+    tr.milestone-past .m-marker { color: #6b8a5e; }
+    tr.milestone-today { background: rgba(211, 199, 158, 0.18); }
+    tr.milestone-today .m-marker { color: var(--accent); font-weight: 600; }
+    tr.milestone-future .m-marker { color: var(--ink-soft); }
+
+    table.snapshot {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.93rem;
+    }
+    table.snapshot th, table.snapshot td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    table.snapshot th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      font-weight: 600;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 14px;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--paper-soft);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 18px 22px;
+    }
+    .panel h3 {
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .panel ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 0.93rem;
+      color: var(--ink-soft);
+    }
+    .panel li { margin-bottom: 6px; }
+
+    .irreducible {
+      margin-top: 14px;
+      padding: 14px 20px;
+      border: 1px dashed var(--accent-soft);
+      border-radius: 4px;
+      background: rgba(211, 199, 158, 0.08);
+    }
+    .irreducible h3 {
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      margin: 0 0 6px;
+    }
+    .irreducible p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      margin: 0 0 8px;
+    }
+    .irreducible ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 0.92rem;
+      color: var(--ink-soft);
+      columns: 2;
+      column-gap: 28px;
+    }
+    @media (max-width: 600px) { .irreducible ul { columns: 1; } }
+    .irreducible li { margin-bottom: 4px; break-inside: avoid; }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 18px;
+      border-top: 1px solid var(--rule);
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+    }
+    footer p { margin: 0 0 4px; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="page" role="main">
+    <header>
+      <h1>Local Impact Automation Buildout</h1>
+      <p class="meta">
+        <span>Started May 2, 2026 Saturday</span>
+        <span>Target May 9, 2026 Saturday</span>
+        <span id="days-remaining">6 days remaining</span>
+        <span>Owner: BG</span>
+      </p>
+      <a class="charter-link" href="README.md">Read the project charter (README.md)</a>
+      <div class="summary">
+        The Local Impact 60-day engagement was graded against today's automation stack and landed at 28 fully automatable tasks, 25 AI-driven with human approval, 4 AI-assisted, 2 mostly human, and 7 irreducibly human. This sprint ships the foundation builds in seven days — the orchestration spine plus the highest-leverage onboarding pipeline — so the next live engagement runs on automation rails for Day 1 through Day 15. The thesis is not "replace the team." The thesis is "free the team's hours from execution so they can hold the seven irreducibly human moments well."
+      </div>
+    </header>
+
+    <section aria-labelledby="snapshot-h">
+      <h2 id="snapshot-h">Status snapshot</h2>
+      <div class="grid-counts">
+        <div class="count-card"><div class="n">3</div><div class="label">Open</div></div>
+        <div class="count-card"><div class="n">2</div><div class="label">In progress</div></div>
+        <div class="count-card"><div class="n">3</div><div class="label">Shipped</div></div>
+        <div class="count-card"><div class="n">0</div><div class="label">Blocked</div></div>
+      </div>
+      <table class="snapshot">
+        <thead>
+          <tr><th>Build</th><th>Name</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Build #1</td>
+          <td>Stage Trigger Sequencer</td>
+          <td><span class="badge badge-shipped">Shipped</span></td>
+        </tr>
+        <tr>
+          <td>Build #2</td>
+          <td>Onboarding Pipeline (T1 through T15)</td>
+          <td><span class="badge badge-in-progress">In Progress</span></td>
+        </tr>
+        <tr>
+          <td>Build #3</td>
+          <td>Audit + Report Generation Pipeline</td>
+          <td><span class="badge badge-deferred">Deferred</span></td>
+        </tr>
+        <tr>
+          <td>Build #4</td>
+          <td>AI-Narrated Loom Walkthrough Generator</td>
+          <td><span class="badge badge-deferred">Deferred</span></td>
+        </tr>
+        <tr>
+          <td>Build #5</td>
+          <td>Content Production + Publish + Link Orchestration</td>
+          <td><span class="badge badge-deferred">Deferred</span></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="builds-h">
+      <h2 id="builds-h">Build inventory</h2>
+    <article class="build-card" id="build-1">
+      <header class="build-head">
+        <div class="build-title">
+          <span class="build-num">Build #1</span>
+          <h3>Stage Trigger Sequencer</h3>
+        </div>
+        <span class="badge badge-shipped">Shipped</span>
+      </header>
+      <dl class="build-meta">
+        <div><dt>Owner</dt><dd>Mack</dd></div>
+        <div><dt>Effort</dt><dd>Light (2 to 3 days)</dd></div>
+        <div><dt>Tasks covered</dt><dd>Orchestration spine for T1 through T15 plus future scheduled and event-driven touchpoints (T49, T55, T63, T64, T65)</dd></div>
+      </dl>
+      <p class="build-why"><span class="label">Why this build:</span> Cheapest build, highest reliability dividend, foundation every other build sits on. Without this, no other build deploys.</p>
+      <details class="build-dod">
+        <summary>Definition of done</summary>
+        <ul>
+          <li>Cron / launchd jobs configured and firing at correct day-offsets (Day 1, 2, 3, 7, 14, 28-30) from a synthetic engagement-start event</li>
+          <li>GHL webhook listener captures the canonical engagement events: deal-closed, contract-signed, payment-received, access-confirmed</li>
+          <li>Event-to-task dispatcher routes each event to the correct downstream handler (handler stubs are fine for this week)</li>
+          <li>Test client record running through Day 1 to Day 7 emits all expected trigger-fires in the correct order, observable in a log</li>
+          <li>Failure modes documented: webhook missed, cron missed, retry behavior, dead-letter queue</li>
+          <li>notify.py integration so any silent-action fires surface to BG per the standing rule</li>
+        </ul>
+      </details>
+      
+    </article>
+    <article class="build-card" id="build-2">
+      <header class="build-head">
+        <div class="build-title">
+          <span class="build-num">Build #2</span>
+          <h3>Onboarding Pipeline (T1 through T15)</h3>
+        </div>
+        <span class="badge badge-in-progress">In Progress</span>
+      </header>
+      <dl class="build-meta">
+        <div><dt>Owner</dt><dd>Mack</dd></div>
+        <div><dt>Effort</dt><dd>Medium (3 to 4 days)</dd></div>
+        <div><dt>Tasks covered</dt><dd>T1, T2, T3, T4, T7, T9, T14, T15 fully automated. T5, T6, T11, T12, T13 generate drafts queued for human approval.</dd></div>
+      </dl>
+      <p class="build-why"><span class="label">Why this build:</span> Highest task count of any single build. Fires every time a new Impact System client closes. Every signed engagement benefits the moment they cross Phase 1.</p>
+      <details class="build-dod">
+        <summary>Definition of done</summary>
+        <ul>
+          <li>T1 fires within 5 minutes of GHL deal-closed event, parameter-validated against canonical contract template</li>
+          <li>T2 watches OBS output, uploads to Vimeo, transcribes via Whisper, runs locked sales-eval prompt, posts structured eval back to GHL</li>
+          <li>T3 fires on DocuSign completed event, generates invoice, sends with reminder cadence configured</li>
+          <li>T4 fires on payment-received webhook, builds Drive folder structure with correct ACLs, appends client across all tracker tabs</li>
+          <li>T7 polls access-status at 48h post-onboarding, sends templated follow-up with Calendly link if access still missing</li>
+          <li>T9 dispatches Internal Handoff Email A on access-confirmed event</li>
+          <li>T14 fires on Day 3 with same logic as T7</li>
+          <li>T15 polls questionnaire-status, sends Email 5 reminder if not returned by Day 3-4</li>
+          <li>All eight handlers integrated with Build #1 trigger spine</li>
+          <li>End-to-end test: synthetic engagement-start event yields all eight handlers firing in correct order with correct artifacts</li>
+        </ul>
+      </details>
+      
+    </article>
+    <article class="build-card" id="build-3">
+      <header class="build-head">
+        <div class="build-title">
+          <span class="build-num">Build #3</span>
+          <h3>Audit + Report Generation Pipeline</h3>
+        </div>
+        <span class="badge badge-deferred">Deferred</span>
+      </header>
+      <dl class="build-meta">
+        <div><dt>Owner</dt><dd>Mack</dd></div>
+        <div><dt>Effort</dt><dd>Medium-to-heavy (1 to 2 weeks)</dd></div>
+        <div><dt>Tasks covered</dt><dd>T11, T12, T13, T16, T17, T18, T19, T20, T46, T47, T58, T59 (12 tasks)</dd></div>
+      </dl>
+      <p class="build-why"><span class="label">Why this build:</span> Recurring revenue work. Automating the report pipeline once buys back the largest fixed monthly time block per client. Unlocks 2-3x scale.</p>
+      <details class="build-dod">
+        <summary>Definition of done</summary>
+        <ul>
+          <li>Deferred to next sprint specification — authored at May 9, 2026 Saturday sprint review</li>
+        </ul>
+      </details>
+      <p class="scope-note">Inventoried for visibility. Not in this week's scope; sequenced for a subsequent sprint.</p>
+    </article>
+    <article class="build-card" id="build-4">
+      <header class="build-head">
+        <div class="build-title">
+          <span class="build-num">Build #4</span>
+          <h3>AI-Narrated Loom Walkthrough Generator</h3>
+        </div>
+        <span class="badge badge-deferred">Deferred</span>
+      </header>
+      <dl class="build-meta">
+        <div><dt>Owner</dt><dd>Mack</dd></div>
+        <div><dt>Effort</dt><dd>Medium (1 week)</dd></div>
+        <div><dt>Tasks covered</dt><dd>T27, T37, T42, T48, T54, T57 (6 Looms across the 60-day arc plus all recurring monthly Looms)</dd></div>
+      </dl>
+      <p class="build-why"><span class="label">Why this build:</span> High-frequency client deliverable, currently human-time-intensive. Strong perceived value-per-touch — automating it lets the team produce more Looms, not just the same number with less labor.</p>
+      <details class="build-dod">
+        <summary>Definition of done</summary>
+        <ul>
+          <li>Deferred to subsequent sprint specification</li>
+        </ul>
+      </details>
+      <p class="scope-note">Inventoried for visibility. Not in this week's scope; sequenced for a subsequent sprint.</p>
+    </article>
+    <article class="build-card" id="build-5">
+      <header class="build-head">
+        <div class="build-title">
+          <span class="build-num">Build #5</span>
+          <h3>Content Production + Publish + Link Orchestration</h3>
+        </div>
+        <span class="badge badge-deferred">Deferred</span>
+      </header>
+      <dl class="build-meta">
+        <div><dt>Owner</dt><dd>Mack</dd></div>
+        <div><dt>Effort</dt><dd>Medium (1 to 2 weeks)</dd></div>
+        <div><dt>Tasks covered</dt><dd>T35, T38, T39, T40, T44, T45 (6 tasks)</dd></div>
+      </dl>
+      <p class="build-why"><span class="label">Why this build:</span> Largest monthly volume work. Internal-linking automation alone is shamefully easy to build today and worth more than 3 rounds of schema work.</p>
+      <details class="build-dod">
+        <summary>Definition of done</summary>
+        <ul>
+          <li>Deferred to subsequent sprint specification</li>
+        </ul>
+      </details>
+      <p class="scope-note">Inventoried for visibility. Not in this week's scope; sequenced for a subsequent sprint.</p>
+    </article>
+    </section>
+
+    <section aria-labelledby="timeline-h">
+      <h2 id="timeline-h">Milestone timeline</h2>
+      <table class="milestones">
+        <thead>
+          <tr><th>Day</th><th>Date</th><th>Marker</th><th>Milestone</th></tr>
+        </thead>
+        <tbody>
+        <tr class="milestone-past">
+          <td class="m-day">Day 1</td>
+          <td class="m-date">May 2, 2026 Saturday</td>
+          <td class="m-marker">Past</td>
+          <td class="m-note">Project kickoff. Scorecard authored. Charter drafted. Project folder created.</td>
+        </tr>
+        <tr class="milestone-today">
+          <td class="m-day">Day 2</td>
+          <td class="m-date">May 3, 2026 Sunday</td>
+          <td class="m-marker">Today</td>
+          <td class="m-note">Charter finalized. HTML status page scaffold (Felix). Mack scopes Build #1 spec.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 3</td>
+          <td class="m-date">May 4, 2026 Monday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Mack starts Build #1 implementation. Status page v1 live and linked.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 4</td>
+          <td class="m-date">May 5, 2026 Tuesday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Build #1 ships and tests green against synthetic engagement record. Mack starts Build #2.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 5</td>
+          <td class="m-date">May 6, 2026 Wednesday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Build #2 in flight (T1, T2, T3, T4 handlers). Status page reflects Build #1 done.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 6</td>
+          <td class="m-date">May 7, 2026 Thursday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Build #2 in flight (T7, T9, T14, T15 handlers). Mid-week scope check.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 7</td>
+          <td class="m-date">May 8, 2026 Friday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Build #2 end-to-end test. Final fixes. Charter updated to shipped state.</td>
+        </tr>
+        <tr class="milestone-future">
+          <td class="m-day">Day 8</td>
+          <td class="m-date">May 9, 2026 Saturday</td>
+          <td class="m-marker">Planned</td>
+          <td class="m-note">Definition-of-done review. Project closes successful, partial-with-deferral, or escalates.</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="risks-h">
+      <h2 id="risks-h">Risks and decisions</h2>
+      <div class="two-col">
+        <div class="panel">
+          <h3>Top risks (ranked)</h3>
+          <ul>
+        <li><strong>GHL webhook reliability gaps.</strong> Polled fallback that reads GHL state on a schedule and reconciles against missed webhooks. Built into Build #1 from the start.</li>
+        <li><strong>DocuSign and Stripe API setup time underestimated.</strong> Timebox API setup to Day 4 morning. If either is not green by Day 4 EOD, escalate to BG and consider deferring T1 or T3 to Build #2.5.</li>
+        <li><strong>Mack effort estimates too tight for Build #2.</strong> Prioritize the four highest-leverage handlers (T1, T3, T4, T9) for guaranteed ship. The other four (T2, T7, T14, T15) are stretch goals.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>BG decisions outstanding</h3>
+          <ul>
+        <li>Stripe vs. alternate invoicing tool — confirm before T3 build</li>
+        <li>Live Impact System engagements that close before rails ship run manually per the SOP — acceptable trade-off</li>
+        <li>NAP correction syndication: BrightLocal procurement vs. internal build — deferred decision</li>
+          </ul>
+        </div>
+      </div>
+      <div class="irreducible">
+        <h3>What is deliberately not being automated</h3>
+        <p>The seven trust-and-rapport moments where a human shows up. By design, these stay human:</p>
+        <ul>
+        <li>Meeting 1 — initial kickoff call</li>
+        <li>Meeting 2 — strategy call</li>
+        <li>Day 60 retention call</li>
+        <li>Verbal approval-securing moments</li>
+        <li>Two handwritten thank-you notes</li>
+        <li>Fee-waiver decision</li>
+        <li>Trust-and-rapport judgment moments</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <p>Last updated: May 3, 2026 Sunday</p>
+      <p>Project charter: <a href="README.md">README.md</a></p>
+      <p>Questions: <a href="mailto:bg@bghamrick.com">bg@bghamrick.com</a> (BG) — technical questions route to Drover via Alfred.</p>
+      <p>BG&#x27;s working dashboard runs on a private host. This page is the public surface for the Impact Team.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Live "days remaining" calculation — runs client-side so the figure is
+    // always current when a team member opens the page, even if the file
+    // was regenerated days ago.
+    (function () {
+      var target = new Date(2026, 4, 9);
+      var today = new Date();
+      today.setHours(0, 0, 0, 0);
+      var ms = target - today;
+      var days = Math.round(ms / 86400000);
+      var phrase;
+      if (days > 1) { phrase = days + ' days remaining'; }
+      else if (days === 1) { phrase = '1 day remaining'; }
+      else if (days === 0) { phrase = 'Target date today'; }
+      else { phrase = Math.abs(days) + ' days past target'; }
+      var el = document.getElementById('days-remaining');
+      if (el) { el.textContent = phrase; }
+    })();
+  </script>
+</body>
+</html>
