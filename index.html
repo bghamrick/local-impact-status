@@ -333,10 +333,113 @@
     }
     footer p { margin: 0 0 4px; }
     footer a { color: var(--accent); }
+
+    /* Brand mark — Impact System wordmark + glyph at top of page */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    .brand-glyph {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      display: block;
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .brand-wordmark {
+      font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .brand-tagline {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Project history — vertical timeline, muted to read as past */
+    .history {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      border-left: 2px solid var(--rule);
+      padding-left: 18px;
+    }
+    .history li {
+      position: relative;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+    }
+    .history li::before {
+      content: "";
+      position: absolute;
+      left: -23px;
+      top: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rule);
+      border: 2px solid var(--paper);
+    }
+    .history-date {
+      font-style: italic;
+      color: var(--ink-soft);
+      margin-right: 6px;
+    }
+    .history-date::after {
+      content: " — ";
+      font-style: normal;
+      color: var(--rule);
+    }
+    .history-note { color: var(--ink-soft); }
+    .history-bridge {
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding-top: 4px;
+      margin-top: 4px;
+    }
+    .history-bridge::before {
+      background: var(--accent) !important;
+      width: 10px !important;
+      height: 10px !important;
+      left: -24px !important;
+    }
+    .history-bridge .history-date {
+      font-style: normal;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .history-bridge .history-note { color: var(--ink); }
   </style>
 </head>
 <body>
   <main class="page" role="main">
+    <div class="brand" aria-label="Impact System — Local Impact Program — Internal Automation Project">
+      <svg class="brand-glyph" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <circle cx="20" cy="20" r="17" fill="none" stroke="#6b5d3f" stroke-width="1.4" opacity="0.55"/>
+        <circle cx="20" cy="20" r="11" fill="none" stroke="#6b5d3f" stroke-width="1.4" opacity="0.75"/>
+        <circle cx="20" cy="20" r="5"  fill="none" stroke="#6b5d3f" stroke-width="1.4"/>
+        <circle cx="20" cy="20" r="2"  fill="#6b5d3f"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-wordmark">Impact System</span>
+        <span class="brand-tagline">Local Impact Program — Internal Automation Project</span>
+      </div>
+    </div>
     <header>
       <h1>Local Impact Automation Buildout</h1>
       <p class="meta">
@@ -391,6 +494,43 @@
         </tr>
         </tbody>
       </table>
+    </section>
+
+    <section aria-labelledby="history-h">
+      <h2 id="history-h">Project history</h2>
+      <p style="font-size: 0.93rem; color: var(--ink-soft); margin-top: 6px;">
+        The project is older than its official start date. The entries below trace the journey to the May 2 formalization moment, where the current sprint picks up.
+      </p>
+      <ol class="history">
+        <li class="history-entry">
+          <span class="history-date">April 3, 2026 Friday</span>
+          <span class="history-note">Migrated from OpenClaw to Claude Cowork.</span>
+        </li>
+        <li class="history-entry">
+          <span class="history-date">April 15, 2026 Wednesday</span>
+          <span class="history-note">Migrated from Claude Cowork to Claude Code.</span>
+        </li>
+        <li class="history-entry">
+          <span class="history-date">April 25, 2026 Saturday</span>
+          <span class="history-note">Migrated from Claude Code to BG&#x27;s internal AI system (tool-agnostic).</span>
+        </li>
+        <li class="history-entry">
+          <span class="history-date">April 27, 2026 Monday</span>
+          <span class="history-note">Verified the Impact Team is not using the app provided in earlier coaching.</span>
+        </li>
+        <li class="history-entry">
+          <span class="history-date">May 1, 2026 Friday</span>
+          <span class="history-note">Scraped the AI SEO Start Here program for most recent and relevant steps; combined with the 60-day onboarding plan.</span>
+        </li>
+        <li class="history-entry">
+          <span class="history-date">May 2, 2026 Saturday</span>
+          <span class="history-note">Built the onboarding SOP and 60-Day plan with AI structure.</span>
+        </li>
+        <li class="history-bridge">
+          <span class="history-date">May 2, 2026 Saturday</span>
+          <span class="history-note">Project formalized. Charter authored, status page shipped, builds queued.</span>
+        </li>
+      </ol>
     </section>
 
     <section aria-labelledby="builds-h">
